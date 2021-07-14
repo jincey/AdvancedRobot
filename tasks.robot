@@ -17,7 +17,7 @@ Library         Collections
 *** Keywords ***
 Fetch order file name from user
     ${Order_url}=   Get Value From User     Input Order.csv URL 
-    Download    ${Order_url}   overwrite=True
+    Download    ${Order_url}   overwrite=True		target_file=${OUTPUT_DIR}
 
 *** Keywords ***
 Fetch browser URL from vault
@@ -28,7 +28,7 @@ Fetch browser URL from vault
 
 *** Keywords ***
 Place order
-    @{sales_order}=    Read Table From Csv  orders.csv   header=True
+    @{sales_order}=    Read Table From Csv  ${OUTPUT_DIR}${/}orders.csv   header=True
        
     FOR    ${order}   IN    @{sales_order}
     Build robot  ${order}
@@ -62,7 +62,7 @@ Build robot
     
     Run Keyword If    ${IsElementVisible}==False    Close Browser 
     
-    Run Keyword If    ${IsElementVisible}   Capture Element Screenshot   //div[@id='robot-preview-image']    ${CURDIR}${/}output${/}sales_summary.png
+    Run Keyword If    ${IsElementVisible}   Capture Element Screenshot   //div[@id='robot-preview-image']    ${OUTPUT_DIR}${/}output${/}sales_summary.png
     Sleep   5s       
     Run Keyword If    ${IsElementVisible}  Save order receipt  ${order}   ELSE      Build robot   ${order}
     Close Browser
@@ -75,20 +75,20 @@ Save order receipt
     [Arguments]     ${order}
     ${OrderNumber} =	Get From Dictionary	${order}	Order number
     ${sales_results_html}=    Get Element Attribute    //div[@id='receipt']    outerHTML
-    Html To Pdf    ${sales_results_html}    ${CURDIR}${/}output${/}sales_results_${OrderNumber}.pdf
-    Open Pdf    ${CURDIR}${/}output${/}sales_results_${OrderNumber}.pdf
+    Html To Pdf    ${sales_results_html}    ${OUTPUT_DIR}${/}output${/}sales_results_${OrderNumber}.pdf
+    Open Pdf    ${OUTPUT_DIR}${/}output${/}sales_results_${OrderNumber}.pdf
     ${files}=    Create List
-    ...    ${CURDIR}${/}output${/}sales_results_${OrderNumber}.pdf
-    ...    ${CURDIR}${/}output${/}sales_summary.png
-    Add Files To PDF     ${files}      ${CURDIR}${/}output${/}sales_results_${OrderNumber}.pdf     
-    Close Pdf   ${CURDIR}${/}output${/}sales_results_${OrderNumber}.pdf
+    ...    ${OUTPUT_DIR}${/}output${/}sales_results_${OrderNumber}.pdf
+    ...    ${OUTPUT_DIR}${/}output${/}sales_summary.png
+    Add Files To PDF     ${files}      ${OUTPUT_DIR}${/}output${/}sales_results_${OrderNumber}.pdf     
+    Close Pdf   ${OUTPUT_DIR}${/}output${/}sales_results_${OrderNumber}.pdf
     
    
 # -
 
 *** Keywords ***
 Create a ZIP archive of receipts
-     Archive Folder With ZIP   ${CURDIR}${/}output  Receipts.zip   recursive=True  include=*.pdf  exclude=/.*
+     Archive Folder With ZIP   ${OUTPUT_DIR}${/}output  ${OUTPUT_DIR}${/}Receipts.zip   recursive=True  include=*.pdf  exclude=/.*
 
 
 *** Tasks ***
